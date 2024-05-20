@@ -18,10 +18,22 @@ message_for_group_3 = "Текст3"
 
 @app.on_message(filters.text & filters.chat(chat_id))
 async def message_handler(client, message):
+    """
+    Обработчик сообщения.
+    Отлавливает сообщения и передаёт их в работу функции 'check_message'.
+    :param client:
+    :param message:
+    """
     await asyncio.create_task(CRUD.check_message(message))
 
 
 async def main():
+    """
+    Main.
+    При запуске ждёт у минуту, после чего запускает бесконечный цикл проверки пользователей на готовность
+    получить сообщение, соответствующие уровню воронки. При наличии готовых к получению сообщения пользователей
+    отправляет им соответствующее сообщение.
+    """
     await asyncio.sleep(60)
     while True:
         groups = await asyncio.create_task(CRUD.check_users_for_sending_message())
@@ -53,6 +65,10 @@ async def main():
 
 
 async def run():
+    """
+    Run.
+    Инициализация таблиц баз данных. Запуск работы приложения. Остановка работы приложения.
+    """
     async with engine.begin() as conn:
         await conn.run_sync(models.Base.metadata.create_all)
     await asyncio.gather(app.start(), main())
